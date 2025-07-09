@@ -1,0 +1,65 @@
+name: 'Terraform2'
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Terraform/**'
+  pull_request:
+    paths:
+      - 'Terraform/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ACI }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ATI }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: Terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Init with backend config
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=tfstate-rg" \
+            -backend-config="storage_account_name=tfstatesa12345" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=dev/sqlserver.tfstate"
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="dev.tfvars"
+
+      # Uncomment this to apply changes
+      # - name: Terraform Apply
+      #   run: terraform apply -var-file="dev.tfvars" -auto-approve
+
+      # Comment this out if you don't want to destroy resources
+      - name: Terraform Destroy
+        run: terraform destroy -var-file="dev.tfvars" -auto-approve
