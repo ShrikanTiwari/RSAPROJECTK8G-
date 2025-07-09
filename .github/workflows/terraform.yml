@@ -56,6 +56,9 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -var-file="dev.tfvars"
 
+      - name: List Terraform files
+        run: find . -name "*.tf"
+
       # Uncomment this to apply changes
       # - name: Terraform Apply
       #   run: terraform apply -var-file="dev.tfvars" -auto-approve
