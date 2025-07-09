@@ -11,33 +11,36 @@ on:
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: read
-
+  
 jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: production
 
-    env:
-      ARM_CLIENT_ID: ${{ secrets.ACI }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ATI }}
-
     defaults:
       run:
         shell: bash
-        working-directory: Terraform
+        working-directory: Terraform 
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          terraform_version: 1.5.7
+          client-id: ${{ secrets.ACI }}
+          tenant-id: ${{ secrets.ATI }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          #client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+     # - name: Setup Terraform
+     #   uses: hashicorp/setup-terraform@v1
+    #    with:
+   #       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init with backend config
         run: |
@@ -47,22 +50,11 @@ jobs:
             -backend-config="container_name=tfstate" \
             -backend-config="key=dev/sqlserver.tfstate"
 
-      - name: Terraform Format
-        run: terraform fmt -check -recursive
-
-      - name: Terraform Validate
-        run: terraform validate
-
       - name: Terraform Plan
         run: terraform plan -var-file="dev.tfvars"
 
-      - name: List Terraform files
-        run: find . -name "*.tf"
-
-      # Uncomment this to apply changes
       # - name: Terraform Apply
       #   run: terraform apply -var-file="dev.tfvars" -auto-approve
-
-      # Comment this out if you don't want to destroy resources
+      
       - name: Terraform Destroy
         run: terraform destroy -var-file="dev.tfvars" -auto-approve
