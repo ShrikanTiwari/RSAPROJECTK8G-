@@ -4,7 +4,7 @@ resource "azurerm_mssql_server" "example" {
   location                     = "westus"
   version                      = "12.0"
   administrator_login          = "sqladminuser"
-  administrator_login_password = "P@ssword1234!"  # Avoid hardcoding in production
+  administrator_login_password = "P@ssword1234!" # Avoid hardcoding in production
 
   tags = {
     environment = "dev"
