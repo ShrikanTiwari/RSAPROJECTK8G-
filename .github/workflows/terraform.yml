@@ -43,10 +43,10 @@ jobs:
       - name: Terraform Init with backend config
         run: |
           terraform init \
-            -backend-config="resource_group_name=storageaccount" \
-            -backend-config="storage_account_name=terraformstatejb" \
+            -backend-config="resource_group_name=tfstate-rg" \
+            -backend-config="storage_account_name=tfstatesa12345" \
             -backend-config="container_name=tfstate" \
-            -backend-config="key=dev.terraform.tfstate"
+            -backend-config="key=dev/sqlserver.tfstate"
 
       - name: Terraform Plan
         run: terraform plan -var-file="dev.tfvars"
