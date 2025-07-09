@@ -79,16 +79,16 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.ACI }}
+          tenant-id: ${{ secrets.ATI }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+       #   client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
   
       - name: Set AKS context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: demo
-          cluster-name: aks-demo-cluster
+          resource-group: demo2
+          cluster-name: aks-demo-cluster2
 
       - name: Apply Kubernetes manifests
         run: kubectl apply -f ./deploy-files/mhc-aks.yaml
